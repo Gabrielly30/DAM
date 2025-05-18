@@ -1,0 +1,833 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Gabrielly30/DAM/blob/main/Imers%C3%A3o%20IA\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%pip -q install google-genai"
+      ],
+      "metadata": {
+        "id": "UCCbECexLk_h"
+      },
+      "execution_count": 1,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Configura a API Key do Google Gemini\n",
+        "\n",
+        "import os\n",
+        "from google.colab import userdata\n",
+        "\n",
+        "os.environ[\"GOOGLE_API_KEY\"] = userdata.get('GOOGLE_API_KEY')"
+      ],
+      "metadata": {
+        "id": "NfCqHo1tLk8P"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Configura o cliente da SDK do Gemini\n",
+        "\n",
+        "from google import genai\n",
+        "\n",
+        "client = genai.Client()\n",
+        "\n",
+        "MODEL_ID = \"gemini-2.0-flash\""
+      ],
+      "metadata": {
+        "id": "bV4w0H5TLk5g"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Pergunta ao Gemini uma informação mais recente que seu conhecimento\n",
+        "\n",
+        "from IPython.display import HTML, Markdown\n",
+        "\n",
+        "# Perguntar pro modelo quando é a próxima imersão de IA ###############################################\n",
+        "resposta = client.models.generate_content(\n",
+        "    model=MODEL_ID,\n",
+        "    contents='Quando é a próxima Imersão IA com Google Gemini da Alura?',\n",
+        ")\n",
+        "\n",
+        "# Exibe a resposta na tela\n",
+        "display(Markdown(f\"Resposta:\\n {response.text}\"))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 64
+        },
+        "id": "Y9cBAz02xZt9",
+        "outputId": "eea7244e-64db-4328-93f0-7f0dc26fec8d"
+      },
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": "Resposta:\n A próxima Imersão IA com Google Gemini da Alura acontecerá entre os dias 12 e 16 de maio de 2025. As inscrições estão abertas até o dia 11 de maio de 2025.\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Pergunta ao Gemini uma informação utilizando a busca do Google como contexto\n",
+        "\n",
+        "response = client.models.generate_content(\n",
+        "    model=MODEL_ID,\n",
+        "    contents='Quando é a próxima Imersão IA com Google Gemini da Alura?',\n",
+        "    config={\"tools\": [{\"google_search\": {}}]}\n",
+        ")\n",
+        "\n",
+        "# Exibe a resposta na tela\n",
+        "display(Markdown(f\"Resposta:\\n {response.text}\"))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 64
+        },
+        "id": "lc2JPA92xbnp",
+        "outputId": "1061e31a-c975-44c5-bce7-aee5d4f943b2"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": "Resposta:\n A próxima Imersão IA com Google Gemini da Alura acontecerá entre os dias 12 e 16 de maio de 2025. As inscrições estão abertas até o dia 11 de maio de 2025.\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Exibe a busca\n",
+        "print(f\"Busca realizada: {response.candidates[0].grounding_metadata.web_search_queries}\")\n",
+        "# Exibe as URLs nas quais ele se baseou\n",
+        "print(f\"Páginas utilizadas na resposta: {', '.join([site.web.title for site in response.candidates[0].grounding_metadata.grounding_chunks])}\")\n",
+        "print()\n",
+        "display(HTML(response.candidates[0].grounding_metadata.search_entry_point.rendered_content))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 116
+        },
+        "id": "6Cg0KNJGMgC5",
+        "outputId": "dce4df24-8f49-49d3-daee-7c3ef95927d1"
+      },
+      "execution_count": 19,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Busca realizada: ['Alura Imersão IA com Google Gemini', 'próxima Imersão IA com Google Gemini Alura']\n",
+            "Páginas utilizadas na resposta: starten.tech, alura.com.br, tecmundo.com.br\n",
+            "\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "<style>\n",
+              ".container {\n",
+              "  align-items: center;\n",
+              "  border-radius: 8px;\n",
+              "  display: flex;\n",
+              "  font-family: Google Sans, Roboto, sans-serif;\n",
+              "  font-size: 14px;\n",
+              "  line-height: 20px;\n",
+              "  padding: 8px 12px;\n",
+              "}\n",
+              ".chip {\n",
+              "  display: inline-block;\n",
+              "  border: solid 1px;\n",
+              "  border-radius: 16px;\n",
+              "  min-width: 14px;\n",
+              "  padding: 5px 16px;\n",
+              "  text-align: center;\n",
+              "  user-select: none;\n",
+              "  margin: 0 8px;\n",
+              "  -webkit-tap-highlight-color: transparent;\n",
+              "}\n",
+              ".carousel {\n",
+              "  overflow: auto;\n",
+              "  scrollbar-width: none;\n",
+              "  white-space: nowrap;\n",
+              "  margin-right: -12px;\n",
+              "}\n",
+              ".headline {\n",
+              "  display: flex;\n",
+              "  margin-right: 4px;\n",
+              "}\n",
+              ".gradient-container {\n",
+              "  position: relative;\n",
+              "}\n",
+              ".gradient {\n",
+              "  position: absolute;\n",
+              "  transform: translate(3px, -9px);\n",
+              "  height: 36px;\n",
+              "  width: 9px;\n",
+              "}\n",
+              "@media (prefers-color-scheme: light) {\n",
+              "  .container {\n",
+              "    background-color: #fafafa;\n",
+              "    box-shadow: 0 0 0 1px #0000000f;\n",
+              "  }\n",
+              "  .headline-label {\n",
+              "    color: #1f1f1f;\n",
+              "  }\n",
+              "  .chip {\n",
+              "    background-color: #ffffff;\n",
+              "    border-color: #d2d2d2;\n",
+              "    color: #5e5e5e;\n",
+              "    text-decoration: none;\n",
+              "  }\n",
+              "  .chip:hover {\n",
+              "    background-color: #f2f2f2;\n",
+              "  }\n",
+              "  .chip:focus {\n",
+              "    background-color: #f2f2f2;\n",
+              "  }\n",
+              "  .chip:active {\n",
+              "    background-color: #d8d8d8;\n",
+              "    border-color: #b6b6b6;\n",
+              "  }\n",
+              "  .logo-dark {\n",
+              "    display: none;\n",
+              "  }\n",
+              "  .gradient {\n",
+              "    background: linear-gradient(90deg, #fafafa 15%, #fafafa00 100%);\n",
+              "  }\n",
+              "}\n",
+              "@media (prefers-color-scheme: dark) {\n",
+              "  .container {\n",
+              "    background-color: #1f1f1f;\n",
+              "    box-shadow: 0 0 0 1px #ffffff26;\n",
+              "  }\n",
+              "  .headline-label {\n",
+              "    color: #fff;\n",
+              "  }\n",
+              "  .chip {\n",
+              "    background-color: #2c2c2c;\n",
+              "    border-color: #3c4043;\n",
+              "    color: #fff;\n",
+              "    text-decoration: none;\n",
+              "  }\n",
+              "  .chip:hover {\n",
+              "    background-color: #353536;\n",
+              "  }\n",
+              "  .chip:focus {\n",
+              "    background-color: #353536;\n",
+              "  }\n",
+              "  .chip:active {\n",
+              "    background-color: #464849;\n",
+              "    border-color: #53575b;\n",
+              "  }\n",
+              "  .logo-light {\n",
+              "    display: none;\n",
+              "  }\n",
+              "  .gradient {\n",
+              "    background: linear-gradient(90deg, #1f1f1f 15%, #1f1f1f00 100%);\n",
+              "  }\n",
+              "}\n",
+              "</style>\n",
+              "<div class=\"container\">\n",
+              "  <div class=\"headline\">\n",
+              "    <svg class=\"logo-light\" width=\"18\" height=\"18\" viewBox=\"9 9 35 35\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n",
+              "      <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M42.8622 27.0064C42.8622 25.7839 42.7525 24.6084 42.5487 23.4799H26.3109V30.1568H35.5897C35.1821 32.3041 33.9596 34.1222 32.1258 35.3448V39.6864H37.7213C40.9814 36.677 42.8622 32.2571 42.8622 27.0064V27.0064Z\" fill=\"#4285F4\"/>\n",
+              "      <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 43.8555C30.9659 43.8555 34.8687 42.3195 37.7213 39.6863L32.1258 35.3447C30.5898 36.3792 28.6306 37.0061 26.3109 37.0061C21.8282 37.0061 18.0195 33.9811 16.6559 29.906H10.9194V34.3573C13.7563 39.9841 19.5712 43.8555 26.3109 43.8555V43.8555Z\" fill=\"#34A853\"/>\n",
+              "      <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M16.6559 29.8904C16.3111 28.8559 16.1074 27.7588 16.1074 26.6146C16.1074 25.4704 16.3111 24.3733 16.6559 23.3388V18.8875H10.9194C9.74388 21.2072 9.06992 23.8247 9.06992 26.6146C9.06992 29.4045 9.74388 32.022 10.9194 34.3417L15.3864 30.8621L16.6559 29.8904V29.8904Z\" fill=\"#FBBC05\"/>\n",
+              "      <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 16.2386C28.85 16.2386 31.107 17.1164 32.9095 18.8091L37.8466 13.8719C34.853 11.082 30.9659 9.3736 26.3109 9.3736C19.5712 9.3736 13.7563 13.245 10.9194 18.8875L16.6559 23.3388C18.0195 19.2636 21.8282 16.2386 26.3109 16.2386V16.2386Z\" fill=\"#EA4335\"/>\n",
+              "    </svg>\n",
+              "    <svg class=\"logo-dark\" width=\"18\" height=\"18\" viewBox=\"0 0 48 48\" xmlns=\"http://www.w3.org/2000/svg\">\n",
+              "      <circle cx=\"24\" cy=\"23\" fill=\"#FFF\" r=\"22\"/>\n",
+              "      <path d=\"M33.76 34.26c2.75-2.56 4.49-6.37 4.49-11.26 0-.89-.08-1.84-.29-3H24.01v5.99h8.03c-.4 2.02-1.5 3.56-3.07 4.56v.75l3.91 2.97h.88z\" fill=\"#4285F4\"/>\n",
+              "      <path d=\"M15.58 25.77A8.845 8.845 0 0 0 24 31.86c1.92 0 3.62-.46 4.97-1.31l4.79 3.71C31.14 36.7 27.65 38 24 38c-5.93 0-11.01-3.4-13.45-8.36l.17-1.01 4.06-2.85h.8z\" fill=\"#34A853\"/>\n",
+              "      <path d=\"M15.59 20.21a8.864 8.864 0 0 0 0 5.58l-5.03 3.86c-.98-2-1.53-4.25-1.53-6.64 0-2.39.55-4.64 1.53-6.64l1-.22 3.81 2.98.22 1.08z\" fill=\"#FBBC05\"/>\n",
+              "      <path d=\"M24 14.14c2.11 0 4.02.75 5.52 1.98l4.36-4.36C31.22 9.43 27.81 8 24 8c-5.93 0-11.01 3.4-13.45 8.36l5.03 3.85A8.86 8.86 0 0 1 24 14.14z\" fill=\"#EA4335\"/>\n",
+              "    </svg>\n",
+              "    <div class=\"gradient-container\"><div class=\"gradient\"></div></div>\n",
+              "  </div>\n",
+              "  <div class=\"carousel\">\n",
+              "    <a class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AbF9wXEL9-1TYhLzM1MlVtXYGBOApBJgQb5UMNT5hDypwih5UcRf9LD0YcL-2Iwj8D3H_DbnEWQP6rwDzPxIBp2_Tc28AV1wTrQQin4hXxe5WgO9pLq2ZLaTaVK2oDZBw9W6uzffKrE5maUmL3W7hyWOPu2pPChM09Cj1O105DKlKV2jFxgBgg0NoDgPFIOm5YFdRnLYMB5lh548mx0jQj7WH-Yt5OBU1l-PuHHtgw==\">Alura Imersão IA com Google Gemini</a>\n",
+              "    <a class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AbF9wXEx84IUwneRlWLXNYTbIEJ5gnaTJJ2IDZY0_Js9oAm_e40oCe9SeEGP6t0Rar4mIVagatGJTmkt7AiCq66bautGwri6Cr0gp8R-JFVIK-3qjzJjLduU4hnLRBQLj7bWR5Pqz9bcy1rMnuewPqL9fWv8L-Q-d_AkFHlGAsTZj-if2NaL0YhxAocqrJajGf041s5MZL3kBsOj3-8kHkvAdCQvZDtr-AJAswBKOTnoOR6oaDXomAgJeaSA\">próxima Imersão IA com Google Gemini Alura</a>\n",
+              "  </div>\n",
+              "</div>\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Instalar Framework de agentes do Google ################################################\n",
+        "!pip install -q google-adk"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "a1eRPalxEnj7",
+        "outputId": "e3c83133-4258-44c2-b137-f56ec69963b0"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[?25l   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/1.2 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.5/1.2 MB\u001b[0m \u001b[31m14.8 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.2/1.2 MB\u001b[0m \u001b[31m18.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m232.1/232.1 kB\u001b[0m \u001b[31m14.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m95.2/95.2 kB\u001b[0m \u001b[31m6.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m217.1/217.1 kB\u001b[0m \u001b[31m14.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m334.1/334.1 kB\u001b[0m \u001b[31m19.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m125.1/125.1 kB\u001b[0m \u001b[31m8.3 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m65.8/65.8 kB\u001b[0m \u001b[31m4.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m119.0/119.0 kB\u001b[0m \u001b[31m8.3 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m194.9/194.9 kB\u001b[0m \u001b[31m9.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m62.5/62.5 kB\u001b[0m \u001b[31m3.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m103.3/103.3 kB\u001b[0m \u001b[31m7.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m44.4/44.4 kB\u001b[0m \u001b[31m2.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m72.0/72.0 kB\u001b[0m \u001b[31m4.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 21,
+      "metadata": {
+        "id": "aePV2bdfDeoW"
+      },
+      "outputs": [],
+      "source": [
+        "from google.adk.agents import Agent\n",
+        "from google.adk.runners import Runner\n",
+        "from google.adk.sessions import InMemorySessionService\n",
+        "from google.adk.tools import google_search\n",
+        "from google.genai import types  # Para criar conteúdos (Content e Part)\n",
+        "from datetime import date\n",
+        "import textwrap # Para formatar melhor a saída de texto\n",
+        "from IPython.display import display, Markdown # Para exibir texto formatado no Colab\n",
+        "import requests # Para fazer requisições HTTP\n",
+        "import warnings\n",
+        "\n",
+        "warnings.filterwarnings(\"ignore\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Função auxiliar que envia uma mensagem para um agente via Runner e retorna a resposta final\n",
+        "def call_agent(agent: Agent, message_text: str) -> str:\n",
+        "    # Cria um serviço de sessão em memória\n",
+        "    session_service = InMemorySessionService()\n",
+        "    # Cria uma nova sessão (você pode personalizar os IDs conforme necessário)\n",
+        "    session = session_service.create_session(app_name=agent.name, user_id=\"user1\", session_id=\"session1\")\n",
+        "    # Cria um Runner para o agente\n",
+        "    runner = Runner(agent=agent, app_name=agent.name, session_service=session_service)\n",
+        "    # Cria o conteúdo da mensagem de entrada\n",
+        "    content = types.Content(role=\"user\", parts=[types.Part(text=message_text)])\n",
+        "\n",
+        "    final_response = \"\"\n",
+        "    # Itera assincronamente pelos eventos retornados durante a execução do agente\n",
+        "    for event in runner.run(user_id=\"user1\", session_id=\"session1\", new_message=content):\n",
+        "        if event.is_final_response():\n",
+        "          for part in event.content.parts:\n",
+        "            if part.text is not None:\n",
+        "              final_response += part.text\n",
+        "              final_response += \"\\n\"\n",
+        "    return final_response"
+      ],
+      "metadata": {
+        "id": "_xP4lWhsS5ko"
+      },
+      "execution_count": 24,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Função auxiliar para exibir texto formatado em Markdown no Colab\n",
+        "def to_markdown(text):\n",
+        "  text = text.replace('•', '  *')\n",
+        "  return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))"
+      ],
+      "metadata": {
+        "id": "8dosiodaxfFR"
+      },
+      "execution_count": 25,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "##########################################\n",
+        "# --- Agente 1: Buscador de Notícias --- #\n",
+        "##########################################\n",
+        "def agente_buscador(topico, data_de_hoje):\n",
+        "\n",
+        "    buscador = Agent(\n",
+        "        name=\"agente_buscador\",\n",
+        "        model=\"gemini-2.0-flash\",\n",
+        "        instruction=\"\"\"\n",
+        "        Você é um assistente de pesquisa. A sua tarefa é usar a ferramenta de busca do google (google_search)\n",
+        "        para recuperar as últimas notícias de lançamentos muito relevantes sobre o tópico abaixo.\n",
+        "        Foque em no máximo 5 lançamentos relevantes, com base na quantidade e entusiasmo das notícias sobre ele.\n",
+        "        Se um tema tiver poucas notícias ou reações entusiasmadas, é possível que ele não seja tão relevante assim\n",
+        "        e pode ser substituído por outro que tenha mais.\n",
+        "        Esses lançamentos relevantes devem ser atuais, de no máximo um mês antes da data de hoje.\n",
+        "        \"\"\",\n",
+        "        description=\"Agente que busca informações no Google\",\n",
+        "        tools=[google_search]\n",
+        "    )\n",
+        "\n",
+        "    entrada_do_agente_buscador = f\"Tópico: {topico}\\nData de hoje: {data_de_hoje}\"\n",
+        "\n",
+        "    lancamentos = call_agent(buscador, entrada_do_agente_buscador)\n",
+        "    return lancamentos"
+      ],
+      "metadata": {
+        "id": "o8bqIfi_DyH8"
+      },
+      "execution_count": 26,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "################################################\n",
+        "# --- Agente 2: Planejador de posts --- #\n",
+        "################################################\n",
+        "def agente_planejador(topico, lancamentos_buscados):\n",
+        "    planejador = Agent(\n",
+        "        name=\"agente_planejador\",\n",
+        "        model=\"gemini-2.0-flash\",\n",
+        "        # Inserir as instruções do Agente Planejador #################################################\n",
+        "        instruction=\"\"\"\n",
+        "        Você é um planejador de conteúdo, especialista em redes sociais. Com base na lista de\n",
+        "        lançamentos mais recentes e relevantes buscador, você deve:\n",
+        "        usar a ferramenta de busca do Google (google_search) para criar um plano sobre\n",
+        "        quais são os pontos mais relevantes que poderíamos abordar em um post sobre\n",
+        "        cada um deles. Você também pode usar o (google_search) para encontrar mais\n",
+        "        informações sobre os temas e aprofundar.\n",
+        "        Ao final, você irá escolher o tema mais relevante entre eles com base nas suas pesquisas\n",
+        "        e retornar esse tema, seus pontos mais relevantes, e um plano com os assuntos\n",
+        "        a serem abordados no post que será escrito posteriormente.\n",
+        "        \"\"\",\n",
+        "        description=\"Agente que planeja posts\",\n",
+        "        tools=[google_search]\n",
+        "    )\n",
+        "\n",
+        "    entrada_do_agente_planejador = f\"Tópico:{topico}\\nLançamentos buscados: {lancamentos_buscados}\"\n",
+        "    # Executa o agente\n",
+        "    plano_do_post = call_agent(planejador, entrada_do_agente_planejador)\n",
+        "    return plano_do_post"
+      ],
+      "metadata": {
+        "id": "y3VO1uo5_ghO"
+      },
+      "execution_count": 27,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "######################################\n",
+        "# --- Agente 3: Redator do Post --- #\n",
+        "######################################\n",
+        "def agente_redator(topico, plano_de_post):\n",
+        "    redator = Agent(\n",
+        "        name=\"agente_redator\",\n",
+        "        model=\"gemini-2.5-pro-preview-03-25\",\n",
+        "        instruction=\"\"\"\n",
+        "            Você é um Redator Criativo especializado em criar posts virais para redes sociais.\n",
+        "            Você escreve posts para a empresa Alura, a maior escola online de tecnologia do Brasil.\n",
+        "            Utilize o tema fornecido no plano de post e os pontos mais relevantes fornecidos e, com base nisso,\n",
+        "            escreva um rascunho de post para Instagram sobre o tema indicado.\n",
+        "            O post deve ser engajador, informativo, com linguagem simples e incluir 2 a 4 hashtags no final.\n",
+        "            \"\"\",\n",
+        "        description=\"Agente redator de posts engajadores para Instagram\"\n",
+        "    )\n",
+        "    entrada_do_agente_redator = f\"Tópico: {topico}\\nPlano de post: {plano_de_post}\"\n",
+        "    # Executa o agente\n",
+        "    rascunho = call_agent(redator, entrada_do_agente_redator)\n",
+        "    return rascunho"
+      ],
+      "metadata": {
+        "id": "uOqlg2TRLVh1"
+      },
+      "execution_count": 28,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "##########################################\n",
+        "# --- Agente 4: Revisor de Qualidade --- #\n",
+        "##########################################\n",
+        "def agente_revisor(topico, rascunho_gerado):\n",
+        "    revisor = Agent(\n",
+        "        name=\"agente_revisor\",\n",
+        "        model=\"gemini-2.5-pro-preview-03-25\",\n",
+        "        instruction=\"\"\"\n",
+        "            Você é um Editor e Revisor de Conteúdo meticuloso, especializado em posts para redes sociais, com foco no Instagram.\n",
+        "            Por ter um público jovem, entre 18 e 30 anos, use um tom de escrita adequado.\n",
+        "            Revise o rascunho de post de Instagram abaixo sobre o tópico indicado, verificando clareza, concisão, correção e tom.\n",
+        "            Se o rascunho estiver bom, responda apenas 'O rascunho está ótimo e pronto para publicar!'.\n",
+        "            Caso haja problemas, aponte-os e sugira melhorias.\n",
+        "            \"\"\",\n",
+        "        description=\"Agente revisor de post para redes sociais.\"\n",
+        "    )\n",
+        "    entrada_do_agente_revisor = f\"Tópico: {topico}\\nRascunho: {rascunho_gerado}\"\n",
+        "    # Executa o agente\n",
+        "    texto_revisado = call_agent(revisor, entrada_do_agente_revisor)\n",
+        "    return texto_revisado"
+      ],
+      "metadata": {
+        "id": "_aTb1SdkLeT6"
+      },
+      "execution_count": 29,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data_de_hoje = date.today().strftime(\"%d/%m/%Y\")\n",
+        "\n",
+        "print(\"🚀 Iniciando o Sistema de Criação de Posts para Instagram com 4 Agentes 🚀\")\n",
+        "\n",
+        "# --- Obter o Tópico do Usuário ---\n",
+        "topico = input(\"❓ Por favor, digite o TÓPICO sobre o qual você quer criar o post de tendências: \")\n",
+        "\n",
+        "# Inserir lógica do sistema de agentes ################################################\n",
+        "if not topico:\n",
+        "    print(\"Você esqueceu de digitar o tópico!\")\n",
+        "else:\n",
+        "    print(f\"Maravilha! Vamos então criar o post sobre novidades em {topico}\")\n",
+        "\n",
+        "    lancamentos_buscados = agente_buscador(topico, data_de_hoje)\n",
+        "    print(\"\\n--- 📝 Resultado do Agente 1 (Buscador) ---\\n\")\n",
+        "    display(to_markdown(lancamentos_buscados))\n",
+        "    print(\"--------------------------------------------------------------\")\n",
+        "\n",
+        "    plano_de_post = agente_planejador(topico, lancamentos_buscados)\n",
+        "    print(\"\\n--- 📝 Resultado do Agente 2 (Planejador) ---\\n\")\n",
+        "    display(to_markdown(plano_de_post))\n",
+        "    print(\"--------------------------------------------------------------\")\n",
+        "\n",
+        "    rascunho_de_post = agente_redator(topico, plano_de_post)\n",
+        "    print(\"\\n--- 📝 Resultado do Agente 3 (Redator) ---\\n\")\n",
+        "    display(to_markdown(rascunho_de_post))\n",
+        "    print(\"--------------------------------------------------------------\")\n",
+        "\n",
+        "    post_final = agente_revisor(topico, rascunho_de_post)\n",
+        "    print(\"\\n--- 📝 Resultado do Agente 4 (Revisor) ---\\n\")\n",
+        "    display(to_markdown(post_final))\n",
+        "    print(\"--------------------------------------------------------------\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "id": "6xzI6LKzxxnN",
+        "outputId": "2c378ffe-e35a-4dfe-d0f1-044bbb89227a"
+      },
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "🚀 Iniciando o Sistema de Criação de Posts para Instagram com 4 Agentes 🚀\n",
+            "❓ Por favor, digite o TÓPICO sobre o qual você quer criar o post de tendências: Viagem\n",
+            "Maravilha! Vamos então criar o post sobre novidades em Viagem\n",
+            "\n",
+            "--- 📝 Resultado do Agente 1 (Buscador) ---\n",
+            "\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": "> Para encontrar os lançamentos mais relevantes e recentes no setor de viagens, focarei em notícias e tendências dos últimos meses. Procurarei por inovações em serviços, novas rotas, tecnologias disruptivas ou mudanças significativas nas políticas de viagem.\n> \n> \n> Com base nas pesquisas, aqui estão alguns lançamentos e tendências relevantes no setor de viagens para maio de 2025:\n> \n> 1.  **Destinos Alternativos e Autênticos:**\n>     *   Há um crescente interesse em destinos menos explorados e rotas não convencionais. Os viajantes buscam experiências únicas e tranquilidade, longe da superlotação dos pontos turísticos tradicionais. Exemplos no Brasil incluem o Parque Nacional dos Lençóis Maranhenses (MA), São José dos Campos (SP) e Caruaru (PE).\n>     *   A Geração Z lidera essa mudança, preferindo descobrir novos lugares a visitar pontos turísticos já consagrados.\n> \n> 2.  **Turismo Sustentável e Escolhas Conscientes:**\n>     *   A sustentabilidade se tornou um fator crucial nas decisões de viagem. Os turistas estão mais atentos ao impacto ambiental e social de suas viagens, buscando opções de transporte menos poluentes, hospedagens ecológicas e atividades que valorizem ecossistemas e culturas locais.\n>     *   Há uma crescente demanda por viagens regenerativas, que incentivam práticas para restaurar e revitalizar ecossistemas e comunidades locais.\n> \n> 3.  **Novas Rotas Aéreas:**\n>     *   Companhias aéreas estão expandindo suas rotas, oferecendo novas opções de voos diretos para facilitar o acesso a diversos destinos.\n>         *   TAP Air Portugal: Novas rotas de Lisboa para Los Angeles e do Porto para Boston (início em maio de 2025).\n>         *   EasyJet: Novas rotas de Milão Linate para Lisboa e de Bordéus para Faro.\n>         *   Brussels Airlines: Nova ligação para o Funchal.\n>         *   Air Transat: Novas rotas de Montreal para Guadalajara e extensão do serviço Montreal-Madrid para o inverno.\n>         *   United Airlines: Novas rotas diretas para Faro e Funchal (a partir de Newark, Nova Jérsia).\n> \n> 4.  **Tecnologia e Inteligência Artificial:**\n>     *   A tecnologia continua a revolucionar a experiência de viagem, desde o planejamento até a execução. A Inteligência Artificial (IA) está sendo utilizada para personalizar roteiros, oferecer suporte em tempo real e otimizar a gestão de recursos em destinos turísticos.\n>     *   A realidade virtual e aumentada estão sendo usadas para permitir que os viajantes explorem destinos e hotéis antes de reservar.\n> \n> 5.  **Viagens de Imersão e Experiências Personalizadas:**\n>     *   O turismo de imersão está em alta, com viajantes buscando vivências autênticas e interação direta com a cultura e o cotidiano local.\n>     *   Há uma crescente demanda por experiências personalizadas e únicas, como viagens de luxo descontraído em hotéis boutique e destinos menos conhecidos.\n> \n> 6.  **Eventos e Feiras de Turismo:**\n>     *   Diversos eventos e feiras de turismo estão programados para 2025, reunindo profissionais do setor para discutir tendências, promover negócios e apresentar novidades. Alguns exemplos incluem:\n>         *   ILTM Latin America (São Paulo, maio)\n>         *   BNT Mercosul (Balneário Camboriú, maio)\n>         *   Expo Turismo Paraná (Curitiba, março)\n>         *   WTM Latin America (São Paulo, abril)\n> \n> Essas tendências refletem um setor de viagens em constante evolução, impulsionado pela tecnologia, pela crescente preocupação com a sustentabilidade e pelo desejo dos viajantes por experiências mais autênticas e personalizadas.\n> \n"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--------------------------------------------------------------\n",
+            "\n",
+            "--- 📝 Resultado do Agente 2 (Planejador) ---\n",
+            "\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": "> Okay, com base nos lançamentos e tendências que você forneceu, vou usar a ferramenta de busca do Google para criar um plano de conteúdo para cada um deles, identificar o mais relevante e, em seguida, detalhar um plano para um post específico.\n> \n> \n> Com base nas minhas pesquisas e na sua lista, aqui estão os pontos mais relevantes para cada tema:\n> \n> **1. Destinos Alternativos e Autênticos:**\n> \n> *   **Pontos Relevantes:**\n>     *   Crescente procura por lugares menos conhecidos para fugir do turismo de massa.\n>     *   Geração Z liderando a busca por novas experiências.\n>     *   Destinos brasileiros em destaque: Lençóis Maranhenses (MA), São José dos Campos (SP), Caruaru (PE).\n>     *   Oportunidade de explorar a cultura local e interagir com a comunidade.\n> *   **Possíveis Assuntos para o Post:**\n>     *   Por que escolher destinos alternativos.\n>     *   Como encontrar joias escondidas em suas viagens.\n>     *   Dicas para planejar uma viagem autêntica no Brasil.\n>     *   O impacto positivo do turismo em comunidades locais.\n> \n> **2. Turismo Sustentável e Escolhas Conscientes:**\n> \n> *   **Pontos Relevantes:**\n>     *   Aumento da conscientização sobre o impacto ambiental e social das viagens.\n>     *   Busca por opções de transporte e hospedagem ecológicas.\n>     *   Crescimento do turismo regenerativo, visando revitalizar ecossistemas e comunidades.\n> *   **Possíveis Assuntos para o Post:**\n>     *   O que é turismo sustentável e como praticá-lo.\n>     *   Como escolher opções de viagem com baixo impacto ambiental.\n>     *   A importância de apoiar iniciativas de turismo regenerativo.\n>     *   Dicas para reduzir o desperdício e o uso de plásticos em suas viagens.\n> \n> **3. Novas Rotas Aéreas:**\n> \n> *   **Pontos Relevantes:**\n>     *   Expansão de rotas por diversas companhias aéreas, facilitando o acesso a diferentes destinos.\n>     *   TAP Air Portugal: Novas rotas de Lisboa para Los Angeles e do Porto para Boston.\n>     *   EasyJet: Novas rotas de Milão Linate para Lisboa e de Bordéus para Faro.\n>     *   Brussels Airlines: Nova ligação para o Funchal.\n>     *   Air Transat: Novas rotas de Montreal para Guadalajara e extensão do serviço Montreal-Madrid para o inverno.\n>     *   United Airlines: Novas rotas diretas para Faro e Funchal (a partir de Newark, Nova Jérsia).\n> *   **Possíveis Assuntos para o Post:**\n>     *   Como as novas rotas aéreas estão transformando o turismo.\n>     *   Um guia para planejar suas próximas férias com as novas rotas da TAP.\n>     *   Dicas para encontrar voos baratos e aproveitar ao máximo as novas rotas.\n>     *   Como explorar novos destinos com as rotas da EasyJet e Brussels Airlines.\n> \n> **4. Tecnologia e Inteligência Artificial:**\n> \n> *   **Pontos Relevantes:**\n>     *   IA sendo utilizada para personalizar roteiros e otimizar a gestão de recursos.\n>     *   Realidade virtual e aumentada permitindo explorar destinos antes de reservar.\n>     *   Chatbots e assistentes virtuais para suporte em tempo real.\n> *   **Possíveis Assuntos para o Post:**\n>     *   Como a IA está revolucionando a experiência de viagem.\n>     *   As melhores ferramentas de IA para planejar suas férias.\n>     *   Como a realidade virtual pode te ajudar a escolher seu próximo destino.\n>     *   O futuro do turismo: como a tecnologia moldará nossas viagens.\n> \n> **5. Viagens de Imersão e Experiências Personalizadas:**\n> \n> *   **Pontos Relevantes:**\n>     *   Busca por vivências autênticas e interação com a cultura local.\n>     *   Demanda por experiências personalizadas em hotéis boutique e destinos menos conhecidos.\n> *   **Possíveis Assuntos para o Post:**\n>     *   Como ter uma experiência de viagem mais imersiva.\n>     *   Dicas para encontrar hotéis boutique e experiências personalizadas.\n>     *   A importância de se conectar com a cultura local em suas viagens.\n>     *   Como planejar uma viagem que seja verdadeiramente única e inesquecível.\n> \n> **6. Eventos e Feiras de Turismo:**\n> \n> *   **Pontos Relevantes:**\n>     *   Eventos como ILTM Latin America, BNT Mercosul, Expo Turismo Paraná e WTM Latin America.\n>     *   Oportunidade para profissionais do setor discutirem tendências e promoverem negócios.\n> *   **Possíveis Assuntos para o Post:**\n>     *   Os principais eventos de turismo em 2025 e por que você deveria participar.\n>     *   As tendências que serão discutidas nos eventos de turismo.\n>     *   Como os eventos de turismo podem impulsionar o desenvolvimento do setor.\n> \n> **Escolha do Tema Mais Relevante:**\n> \n> Na minha opinião, o tema mais relevante para um post no momento é **Tecnologia e Inteligência Artificial no Turismo**. A IA está transformando a maneira como planejamos e vivenciamos as viagens, e há um grande interesse em entender como essas tecnologias podem ser usadas para tornar as experiências mais personalizadas e eficientes. As buscas mostram que 2 a cada 3 brasileiros devem usar IA para planejar viagens em 2025 (fonte 14).\n> \n> **Plano para um Post sobre Tecnologia e Inteligência Artificial no Turismo:**\n> \n> *   **Título:** \"O Futuro Chegou: Como a Inteligência Artificial Está Transformando Suas Viagens em 2025\"\n> *   **Público-alvo:** Viajantes interessados em tecnologia, planejamento de viagens e novas tendências.\n> *   **Objetivo:** Informar e inspirar os leitores a utilizarem a IA para planejar viagens mais personalizadas e eficientes.\n> \n> *   **Assuntos a serem Abordados:**\n>     1.  **Introdução:**\n>         *   Apresentar a IA como uma das principais tendências do turismo em 2025.\n>         *   Destacar o impacto da IA na personalização e otimização das viagens.\n>     2.  **Como a IA Está Sendo Utilizada no Turismo:**\n>         *   **Planejamento de Roteiros:**\n>             *   Ferramentas de IA que analisam preferências e sugerem destinos e atividades.\n>             *   Exemplos de aplicativos e plataformas que utilizam IA para criar roteiros personalizados.\n>         *   **Suporte em Tempo Real:**\n>             *   Chatbots e assistentes virtuais que respondem a perguntas e oferecem suporte durante a viagem.\n>             *   Exemplos de hotéis e destinos que utilizam IA para melhorar o atendimento ao cliente.\n>         *   **Realidade Virtual e Aumentada:**\n>             *   Como a RV e a RA permitem explorar destinos antes de reservar.\n>             *   Exemplos de museus e hotéis que oferecem experiências de RV e RA.\n>         *   **Gestão de Recursos:**\n>             *   Como a IA está sendo usada para otimizar a gestão de recursos em destinos turísticos.\n>             *   Exemplos de cidades que utilizam IA para reduzir o congestionamento e o impacto ambiental.\n>     3.  **Benefícios da IA no Turismo:**\n>         *   Personalização da experiência de viagem.\n>         *   Otimização do tempo e do orçamento.\n>         *   Suporte em tempo real e resolução de problemas.\n>         *   Descoberta de novos destinos e experiências.\n>     4.  **Exemplos Práticos:**\n>         *   Casos de sucesso de viajantes que utilizaram a IA para planejar suas viagens.\n>         *   Entrevistas com especialistas em tecnologia e turismo.\n>     5.  **O Futuro da IA no Turismo:**\n>         *   As próximas tendências e inovações em IA para o setor de viagens.\n>         *   Como a IA continuará a transformar a experiência de viagem nos próximos anos.\n>     6.  **Conclusão:**\n>         *   Reforçar a importância da IA para o futuro do turismo.\n>         *   Incentivar os leitores a experimentarem as ferramentas de IA para planejar suas próximas viagens.\n> \n> Espero que este plano detalhado seja útil para a criação do seu post!\n> \n"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Exception in thread Thread-20 (_asyncio_thread_main):\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n",
+            "    self.run()\n",
+            "  File \"/usr/lib/python3.11/threading.py\", line 982, in run\n",
+            "    self._target(*self._args, **self._kwargs)\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 138, in _asyncio_thread_main\n",
+            "    asyncio.run(_invoke_run_async())\n",
+            "  File \"/usr/lib/python3.11/asyncio/runners.py\", line 190, in run\n",
+            "    return runner.run(main)\n",
+            "           ^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/lib/python3.11/asyncio/runners.py\", line 118, in run\n",
+            "    return self._loop.run_until_complete(task)\n",
+            "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n",
+            "    return future.result()\n",
+            "           ^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 126, in _invoke_run_async\n",
+            "    async for event in self.run_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 197, in run_async\n",
+            "    async for event in invocation_context.agent.run_async(invocation_context):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/agents/base_agent.py\", line 133, in run_async\n",
+            "    async for event in self._run_async_impl(ctx):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/agents/llm_agent.py\", line 246, in _run_async_impl\n",
+            "    async for event in self._llm_flow.run_async(ctx):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 243, in run_async\n",
+            "    async for event in self._run_one_step_async(invocation_context):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 268, in _run_one_step_async\n",
+            "    async for llm_response in self._call_llm_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 483, in _call_llm_async\n",
+            "    async for llm_response in llm.generate_content_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/models/google_llm.py\", line 140, in generate_content_async\n",
+            "    response = await self.api_client.aio.models.generate_content(\n",
+            "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/models.py\", line 6672, in generate_content\n",
+            "    response = await self._generate_content(\n",
+            "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/models.py\", line 5674, in _generate_content\n",
+            "    response_dict = await self._api_client.async_request(\n",
+            "                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/_api_client.py\", line 789, in async_request\n",
+            "    result = await self._async_request(http_request=http_request, stream=False)\n",
+            "             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/_api_client.py\", line 733, in _async_request\n",
+            "    await errors.APIError.raise_for_async_response(response)\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/errors.py\", line 129, in raise_for_async_response\n",
+            "    raise ClientError(status_code, response_json, response)\n",
+            "google.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Gemini 2.5 Pro Preview doesn't have a free quota tier. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.\", 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerDay-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro-exp'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerMinute-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro-exp'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-pro-exp', 'location': 'global'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro-exp'}}]}, {'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '7s'}]}}\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--------------------------------------------------------------\n",
+            "\n",
+            "--- 📝 Resultado do Agente 3 (Redator) ---\n",
+            "\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": ""
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "ERROR:asyncio:Task exception was never retrieved\n",
+            "future: <Task finished name='Task-45' coro=<AsyncClient.aclose() done, defined at /usr/local/lib/python3.11/dist-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpx/_client.py\", line 1985, in aclose\n",
+            "    await self._transport.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpx/_transports/default.py\", line 406, in aclose\n",
+            "    await self._pool.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpcore/_async/connection_pool.py\", line 353, in aclose\n",
+            "    await self._close_connections(closing_connections)\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpcore/_async/connection_pool.py\", line 345, in _close_connections\n",
+            "    await connection.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpcore/_async/connection.py\", line 173, in aclose\n",
+            "    await self._connection.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpcore/_async/http11.py\", line 258, in aclose\n",
+            "    await self._network_stream.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/httpcore/_backends/anyio.py\", line 53, in aclose\n",
+            "    await self._stream.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/anyio/streams/tls.py\", line 216, in aclose\n",
+            "    await self.transport_stream.aclose()\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/anyio/_backends/_asyncio.py\", line 1314, in aclose\n",
+            "    self._transport.close()\n",
+            "  File \"/usr/lib/python3.11/asyncio/selector_events.py\", line 864, in close\n",
+            "    self._loop.call_soon(self._call_connection_lost, None)\n",
+            "  File \"/usr/lib/python3.11/asyncio/base_events.py\", line 762, in call_soon\n",
+            "    self._check_closed()\n",
+            "  File \"/usr/lib/python3.11/asyncio/base_events.py\", line 520, in _check_closed\n",
+            "    raise RuntimeError('Event loop is closed')\n",
+            "RuntimeError: Event loop is closed\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--------------------------------------------------------------\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Exception in thread Thread-22 (_asyncio_thread_main):\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n",
+            "    self.run()\n",
+            "  File \"/usr/lib/python3.11/threading.py\", line 982, in run\n",
+            "    self._target(*self._args, **self._kwargs)\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 138, in _asyncio_thread_main\n",
+            "    asyncio.run(_invoke_run_async())\n",
+            "  File \"/usr/lib/python3.11/asyncio/runners.py\", line 190, in run\n",
+            "    return runner.run(main)\n",
+            "           ^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/lib/python3.11/asyncio/runners.py\", line 118, in run\n",
+            "    return self._loop.run_until_complete(task)\n",
+            "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n",
+            "    return future.result()\n",
+            "           ^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 126, in _invoke_run_async\n",
+            "    async for event in self.run_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/runners.py\", line 197, in run_async\n",
+            "    async for event in invocation_context.agent.run_async(invocation_context):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/agents/base_agent.py\", line 133, in run_async\n",
+            "    async for event in self._run_async_impl(ctx):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/agents/llm_agent.py\", line 246, in _run_async_impl\n",
+            "    async for event in self._llm_flow.run_async(ctx):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 243, in run_async\n",
+            "    async for event in self._run_one_step_async(invocation_context):\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 268, in _run_one_step_async\n",
+            "    async for llm_response in self._call_llm_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 483, in _call_llm_async\n",
+            "    async for llm_response in llm.generate_content_async(\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/adk/models/google_llm.py\", line 140, in generate_content_async\n",
+            "    response = await self.api_client.aio.models.generate_content(\n",
+            "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/models.py\", line 6672, in generate_content\n",
+            "    response = await self._generate_content(\n",
+            "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/models.py\", line 5674, in _generate_content\n",
+            "    response_dict = await self._api_client.async_request(\n",
+            "                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/_api_client.py\", line 789, in async_request\n",
+            "    result = await self._async_request(http_request=http_request, stream=False)\n",
+            "             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/_api_client.py\", line 733, in _async_request\n",
+            "    await errors.APIError.raise_for_async_response(response)\n",
+            "  File \"/usr/local/lib/python3.11/dist-packages/google/genai/errors.py\", line 129, in raise_for_async_response\n",
+            "    raise ClientError(status_code, response_json, response)\n",
+            "google.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Gemini 2.5 Pro Preview doesn't have a free quota tier. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.\", 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerDay-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-pro-exp', 'location': 'global'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerMinute-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro-exp'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-pro-exp', 'location': 'global'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-pro-exp', 'location': 'global'}}]}, {'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '7s'}]}}\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- 📝 Resultado do Agente 4 (Revisor) ---\n",
+            "\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Markdown object>"
+            ],
+            "text/markdown": ""
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--------------------------------------------------------------\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
